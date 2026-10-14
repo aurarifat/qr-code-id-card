@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { useSiteData, SocialPlatform, SocialAccount, GalleryPhoto } from '../context/SiteDataContext';
 import { normalizeImageUrl, resolveAndNormalizeImageUrl } from '../utils/imageUrl';
+import { ANIMATION_PRESETS, getAnimationClass } from '../utils/animationUtils';
+import { copyToClipboard } from '../utils/clipboard';
 import {
   X,
   Lock,
@@ -32,6 +34,9 @@ import {
   ArrowRight,
   Info,
   Edit2,
+  Copy,
+  Download,
+  Play,
 } from 'lucide-react';
 
 interface AdminModalProps {
@@ -71,11 +76,16 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
 
   // Dashboard Active Tab
   const [activeTab, setActiveTab] = useState<
-    'brand' | 'school' | 'social' | 'images' | 'gaming' | 'student' | 'gallery'
+    'brand' | 'nameAnim' | 'social' | 'gallery' | 'images' | 'school' | 'gaming' | 'student' | 'github'
   >('brand');
   const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
   const [showVisitorLogs, setShowVisitorLogs] = useState(false);
   const [isRefreshingStats, setIsRefreshingStats] = useState(false);
+
+  // Hero Name Animation Studio State
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(null);
+  const [animPreviewTheme, setAnimPreviewTheme] = useState<'dark' | 'light'>('dark');
+  const [copiedDeployJson, setCopiedDeployJson] = useState(false);
 
   // New social account state
   const [newSocialPlatform, setNewSocialPlatform] = useState<SocialPlatform>('tiktok');
@@ -273,6 +283,65 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
     setEditingPhotoId(null);
     setSaveSuccessMsg('✓ Photo updated live!');
     setTimeout(() => setSaveSuccessMsg(''), 3000);
+  };
+
+  // Hero Name Words & Animation Helpers
+  const brandWords = (siteData.brandName || 'Aura RIFAT').trim().split(/\s+/).filter(Boolean);
+  const firstNameAnim = siteData.heroFirstNameAnimation || 'solid';
+  const lastNameAnim = siteData.heroLastNameAnimation || 'shimmer';
+  const animSpeed = siteData.heroAnimationSpeed || 'normal';
+  const wordAnims = siteData.heroWordAnimations || {};
+
+  const handleSetWordAnimation = (wordIndex: number, animId: string) => {
+    const updated = { ...wordAnims, [wordIndex]: animId };
+    updateField('heroWordAnimations', updated);
+    setSaveSuccessMsg(`✓ Set Word #${wordIndex + 1} (${brandWords[wordIndex]}) animation to "${animId}"!`);
+    setTimeout(() => setSaveSuccessMsg(''), 2500);
+  };
+
+  const handleClearWordAnimations = () => {
+    updateField('heroWordAnimations', {});
+    setSelectedWordIndex(null);
+    setSaveSuccessMsg('✓ Reset word animations to First/Last defaults!');
+    setTimeout(() => setSaveSuccessMsg(''), 2500);
+  };
+
+  const handleApplyPresetToAll = (animId: string) => {
+    updateField('heroFirstNameAnimation', animId);
+    updateField('heroLastNameAnimation', animId);
+    const updated: Record<string, string> = {};
+    brandWords.forEach((_, idx) => {
+      updated[idx] = animId;
+    });
+    updateField('heroWordAnimations', updated);
+    setSaveSuccessMsg(`✓ Applied "${animId}" animation to all words!`);
+    setTimeout(() => setSaveSuccessMsg(''), 2500);
+  };
+
+  const handleDownloadSiteData = () => {
+    const blob = new Blob([JSON.stringify(siteData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'siteData.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    setSaveSuccessMsg('✓ Downloaded updated siteData.json for GitHub!');
+    setTimeout(() => setSaveSuccessMsg(''), 3500);
+  };
+
+  const handleCopySiteData = async () => {
+    const success = await copyToClipboard(JSON.stringify(siteData, null, 2));
+    if (success) {
+      setCopiedDeployJson(true);
+      setSaveSuccessMsg('✓ Copied complete siteData.json to clipboard!');
+      setTimeout(() => {
+        setCopiedDeployJson(false);
+        setSaveSuccessMsg('');
+      }, 3500);
+    }
   };
 
   return (
@@ -571,12 +640,14 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
               <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3">
                 {[
                   { key: 'brand', label: '1. Brand & Bio', icon: Sliders },
-                  { key: 'social', label: '2. Social Accounts', icon: Share2 },
-                  { key: 'gallery', label: '3. Photo Gallery', icon: ImageIcon },
-                  { key: 'images', label: '4. Image Host Links', icon: Upload },
-                  { key: 'school', label: '5. School & ID', icon: GraduationCap },
-                  { key: 'gaming', label: '6. Gaming Profile', icon: Gamepad2 },
-                  { key: 'student', label: '7. Student Life', icon: BookOpen },
+                  { key: 'nameAnim', label: '2. Name Animations ✨', icon: Sparkles },
+                  { key: 'social', label: '3. Social Accounts', icon: Share2 },
+                  { key: 'gallery', label: '4. Photo Gallery', icon: ImageIcon },
+                  { key: 'images', label: '5. Image Host Links', icon: Upload },
+                  { key: 'school', label: '6. School & ID', icon: GraduationCap },
+                  { key: 'gaming', label: '7. Gaming Profile', icon: Gamepad2 },
+                  { key: 'student', label: '8. Student Life', icon: BookOpen },
+                  { key: 'github', label: '9. GitHub Deploy 🚀', icon: ExternalLink },
                 ].map((tab) => {
                   const Icon = tab.icon;
                   const isActive = activeTab === tab.key;
@@ -612,6 +683,19 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                       placeholder="e.g. Aura RIFAT"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[#141414] border border-white/10 text-white text-sm focus:border-[#FF6500] focus:outline-none"
                     />
+                    <div className="flex items-center justify-between gap-2 mt-2 px-2.5 py-1.5 rounded-lg bg-white/5 border border-white/5 text-xs text-[#858585]">
+                      <span className="flex items-center gap-1.5 text-[11px]">
+                        <Sparkles className="w-3 h-3 text-[#FF7A1A]" />
+                        <span>Word Animations:</span>
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('nameAnim')}
+                        className="text-[11px] font-mono text-[#FF7A1A] hover:underline cursor-pointer"
+                      >
+                        Customize Word Animations →
+                      </button>
+                    </div>
                   </div>
 
                   <div>
@@ -704,7 +788,348 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                 </div>
               )}
 
-              {/* TAB 2: SOCIAL ACCOUNTS MANAGER */}
+              {/* TAB 2: HERO NAME ANIMATION STUDIO */}
+              {activeTab === 'nameAnim' && (
+                <div className="space-y-6">
+                  {/* Top Intro Banner */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#181818] via-[#141414] to-[#111111] border border-[#FF6500]/40 shadow-lg space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="p-2 rounded-xl bg-[#FF6500]/20 text-[#FF7A1A]">
+                          <Sparkles className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <h4 className="font-display font-bold text-base sm:text-lg text-white">
+                            Hero Name Animation Studio
+                          </h4>
+                          <p className="text-xs text-[#858585]">
+                            Customize word-by-word animation, first word effect, or last words glow with real-time preview.
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {/* Preview theme switch */}
+                        <button
+                          type="button"
+                          onClick={() => setAnimPreviewTheme(animPreviewTheme === 'dark' ? 'light' : 'dark')}
+                          className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-mono text-white flex items-center gap-1.5 transition-colors cursor-pointer border border-white/10"
+                        >
+                          <span>Theme:</span>
+                          <span className={animPreviewTheme === 'dark' ? 'text-[#FF7A1A] font-bold' : 'text-amber-300 font-bold'}>
+                            {animPreviewTheme === 'dark' ? '🌙 Dark Mode' : '☀️ Light Mode'}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* LIVE INTERACTIVE PREVIEW BOX */}
+                    <div
+                      className={`p-6 sm:p-8 rounded-2xl border transition-all text-center flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden ${
+                        animPreviewTheme === 'dark'
+                          ? 'bg-[#070707] border-[#FF6500]/30 text-white'
+                          : 'bg-[#F8F7F4] border-black/15 text-[#121212]'
+                      }`}
+                    >
+                      <div className="text-[10px] font-mono tracking-widest uppercase text-[#858585] mb-2">
+                        LIVE HERO PREVIEW (CLICK ANY WORD TO EDIT IT DIRECTLY)
+                      </div>
+
+                      <h1 className="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-tight select-none">
+                        {brandWords.map((word, idx) => {
+                          const animKey = wordAnims[idx] || (idx === 0 ? firstNameAnim : lastNameAnim);
+                          const animClass = getAnimationClass(animKey, animSpeed);
+                          const isSelected = selectedWordIndex === idx;
+
+                          return (
+                            <span
+                              key={idx}
+                              onClick={() => setSelectedWordIndex(selectedWordIndex === idx ? null : idx)}
+                              className={`cursor-pointer transition-all inline-block px-2 py-1 mx-1 rounded-xl relative group ${
+                                isSelected
+                                  ? 'ring-2 ring-[#FF6500] bg-[#FF6500]/20 shadow-[0_0_15px_rgba(255,101,0,0.4)]'
+                                  : 'hover:bg-white/10'
+                              }`}
+                              title={`Click to customize word #${idx + 1} (${word})`}
+                            >
+                              <span className={animClass}>{word}</span>
+                              {isSelected && (
+                                <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#FF6500] text-black text-[9px] font-tech font-bold px-1.5 py-0.2 rounded-full whitespace-nowrap shadow">
+                                  EDITING WORD #{idx + 1}
+                                </span>
+                              )}
+                            </span>
+                          );
+                        })}
+                      </h1>
+
+                      <div className="mt-3 text-[11px] font-mono text-[#858585] flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                        <span>Rendering with speed: <strong className="text-[#FF7A1A]">{animSpeed.toUpperCase()}</strong></span>
+                        <span>•</span>
+                        <span>{brandWords.length} words detected in brand name</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* WORD SELECTION CONTROLS */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-[#121212] border border-white/10 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <h5 className="font-display font-bold text-sm text-white">
+                          Word Selection & Targeting
+                        </h5>
+                        <p className="text-xs text-[#858585]">
+                          Choose which part of the name to apply animations to:
+                        </p>
+                      </div>
+
+                      {Object.keys(wordAnims).length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleClearWordAnimations}
+                          className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-mono text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <RotateCcw className="w-3 h-3" />
+                          <span>Reset to First/Last rules</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Word Target Selector Pills */}
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedWordIndex(null)}
+                        className={`px-3.5 py-2 rounded-xl text-xs font-display font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                          selectedWordIndex === null
+                            ? 'bg-[#FF6500] text-black shadow-md'
+                            : 'bg-[#181818] text-[#BDBDBD] hover:text-white border border-white/10'
+                        }`}
+                      >
+                        <span>First Word vs Last Words Mode</span>
+                      </button>
+
+                      {brandWords.map((word, idx) => {
+                        const isSelected = selectedWordIndex === idx;
+                        const animKey = wordAnims[idx] || (idx === 0 ? firstNameAnim : lastNameAnim);
+                        return (
+                          <button
+                            key={idx}
+                            type="button"
+                            onClick={() => setSelectedWordIndex(idx)}
+                            className={`px-3.5 py-2 rounded-xl text-xs font-display font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-gradient-to-r from-[#FF6500] to-[#D94700] text-black shadow-[0_0_12px_rgba(255,101,0,0.5)]'
+                                : 'bg-[#181818] text-[#BDBDBD] hover:text-white border border-white/10'
+                            }`}
+                          >
+                            <span>Word #{idx + 1}: "{word}"</span>
+                            <span className="text-[10px] opacity-75 font-mono">({animKey})</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Active Target Info */}
+                    <div className="p-3 rounded-xl bg-black/40 border border-white/5 flex items-center justify-between text-xs">
+                      <div>
+                        {selectedWordIndex !== null ? (
+                          <span>
+                            Currently editing: <strong className="text-[#FF7A1A]">Word #{selectedWordIndex + 1} ("{brandWords[selectedWordIndex]}")</strong>
+                          </span>
+                        ) : (
+                          <span>
+                            Currently editing: <strong className="text-[#FF7A1A]">First Word & Last Words general rules</strong>
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Speed selector */}
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[#858585] text-xs font-tech">Speed:</span>
+                        {(['fast', 'normal', 'slow'] as const).map((s) => (
+                          <button
+                            key={s}
+                            type="button"
+                            onClick={() => updateField('heroAnimationSpeed', s)}
+                            className={`px-2.5 py-1 rounded-md text-[11px] font-mono capitalize transition-all cursor-pointer ${
+                              animSpeed === s
+                                ? 'bg-[#FF6500] text-black font-bold'
+                                : 'bg-white/5 text-[#858585] hover:text-white'
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* If in First Word vs Last Words mode, show side-by-side dropdowns */}
+                    {selectedWordIndex === null && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl bg-black/30 border border-white/5">
+                        <div>
+                          <label className="text-xs font-tech text-[#FF7A1A] uppercase block mb-1.5 font-bold">
+                            First Word Animation ({brandWords[0] || 'First'})
+                          </label>
+                          <select
+                            value={firstNameAnim}
+                            onChange={(e) => updateField('heroFirstNameAnimation', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#FF6500] focus:outline-none"
+                          >
+                            {ANIMATION_PRESETS.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} ({p.badge})
+                              </option>
+                            ))}
+                          </select>
+                          <span className="text-[11px] text-[#858585] block mt-1">
+                            Applied to the first word of your brand title
+                          </span>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-tech text-[#FFB347] uppercase block mb-1.5 font-bold">
+                            Last Words / Rest of Title Animation ({brandWords.slice(1).join(' ') || 'Rest'})
+                          </label>
+                          <select
+                            value={lastNameAnim}
+                            onChange={(e) => updateField('heroLastNameAnimation', e.target.value)}
+                            className="w-full px-3.5 py-2.5 rounded-xl bg-[#161616] border border-white/10 text-white text-sm focus:border-[#FF6500] focus:outline-none"
+                          >
+                            {ANIMATION_PRESETS.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.name} ({p.badge})
+                              </option>
+                            ))}
+                          </select>
+                          <span className="text-[11px] text-[#858585] block mt-1">
+                            Applied to all following words of your brand title
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* ANIMATION PRESET CARDS GRID */}
+                  <div className="space-y-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h5 className="font-display font-bold text-sm text-white">
+                        Available Animation Styles (Click to Apply)
+                      </h5>
+                      <span className="text-xs text-[#858585]">
+                        {selectedWordIndex !== null
+                          ? `Will apply to Word #${selectedWordIndex + 1} ("${brandWords[selectedWordIndex]}")`
+                          : 'Will apply to selected word or Last Words'}
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {ANIMATION_PRESETS.map((preset) => {
+                        const currentTargetAnim =
+                          selectedWordIndex !== null
+                            ? wordAnims[selectedWordIndex] || (selectedWordIndex === 0 ? firstNameAnim : lastNameAnim)
+                            : lastNameAnim;
+                        const isCurrent = currentTargetAnim === preset.id;
+                        const demoClass = getAnimationClass(preset.id, 'normal');
+
+                        return (
+                          <div
+                            key={preset.id}
+                            onClick={() => {
+                              if (selectedWordIndex !== null) {
+                                handleSetWordAnimation(selectedWordIndex, preset.id);
+                              } else {
+                                updateField('heroLastNameAnimation', preset.id);
+                                setSaveSuccessMsg(`✓ Set Last Words animation to "${preset.name}"!`);
+                                setTimeout(() => setSaveSuccessMsg(''), 2500);
+                              }
+                            }}
+                            className={`p-4 rounded-2xl border transition-all cursor-pointer relative flex flex-col justify-between group ${
+                              isCurrent
+                                ? 'bg-gradient-to-b from-[#1C1C1C] to-[#141414] border-[#FF6500] shadow-[0_0_20px_rgba(255,101,0,0.3)]'
+                                : 'bg-[#121212] border-white/10 hover:border-[#FF6500]/50 hover:bg-[#161616]'
+                            }`}
+                          >
+                            <div>
+                              <div className="flex items-center justify-between gap-2 mb-2">
+                                <span className="font-display font-bold text-sm text-white group-hover:text-[#FF7A1A] transition-colors">
+                                  {preset.name}
+                                </span>
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[#FF6500]/15 text-[#FF7A1A] font-semibold">
+                                  {preset.badge}
+                                </span>
+                              </div>
+
+                              <p className="text-xs text-[#858585] mb-3">
+                                {preset.description}
+                              </p>
+                            </div>
+
+                            {/* Mini animated preview sample */}
+                            <div className="pt-2 border-t border-white/5 flex items-center justify-between">
+                              <span className="text-[11px] font-tech text-[#858585]">Preview:</span>
+                              <span className={`font-display font-extrabold text-sm ${demoClass}`}>
+                                {brandWords[0] || 'Aura'} {brandWords[1] || 'RIFAT'}
+                              </span>
+                            </div>
+
+                            {isCurrent && (
+                              <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#FF6500] shadow-[0_0_8px_#FF6500]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* QUICK 1-TAP PALETTES */}
+                  <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-2">
+                    <span className="text-xs font-tech text-[#858585] uppercase block">
+                      Quick 1-Tap Presets for Whole Name:
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPresetToAll('shimmer')}
+                        className="px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222] text-xs font-mono text-[#FFB347] hover:text-[#FF7A1A] border border-white/5 cursor-pointer"
+                      >
+                        ✦ Apply Shimmer to All Words
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPresetToAll('flame-pulse')}
+                        className="px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222] text-xs font-mono text-[#FF7A1A] hover:text-white border border-white/5 cursor-pointer"
+                      >
+                        🔥 Apply Flame Pulse to All Words
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyPresetToAll('glitch')}
+                        className="px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222] text-xs font-mono text-cyan-400 hover:text-cyan-300 border border-white/5 cursor-pointer"
+                      >
+                        ⚡ Apply Cyber Glitch to All Words
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          updateField('heroFirstNameAnimation', 'solid');
+                          updateField('heroLastNameAnimation', 'shimmer');
+                          updateField('heroWordAnimations', {});
+                          setSelectedWordIndex(null);
+                          setSaveSuccessMsg('✓ Restored official Aura RIFAT signature animation!');
+                          setTimeout(() => setSaveSuccessMsg(''), 2500);
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-[#181818] hover:bg-[#222] text-xs font-mono text-emerald-400 hover:text-emerald-300 border border-white/5 cursor-pointer"
+                      >
+                        👑 Default (Aura Solid + RIFAT Shimmer)
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: SOCIAL ACCOUNTS MANAGER */}
               {activeTab === 'social' && (
                 <div className="space-y-6">
                   <div className="p-3.5 rounded-xl bg-[#141414] border border-[#FF6500]/30 text-xs text-[#BDBDBD] flex flex-wrap items-center justify-between gap-3">
@@ -1602,6 +2027,112 @@ export const AdminModal: React.FC<AdminModalProps> = ({ isOpen, onClose }) => {
                       placeholder="e.g. Reads comics & visual art"
                       className="w-full px-3.5 py-2.5 rounded-xl bg-[#141414] border border-white/10 text-white text-sm focus:border-[#FF6500] focus:outline-none"
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 9: GITHUB DEPLOYMENT HELPER */}
+              {activeTab === 'github' && (
+                <div className="space-y-6">
+                  <div className="p-5 rounded-2xl bg-gradient-to-r from-[#171717] via-[#141414] to-[#121212] border border-[#FF6500]/40 shadow-lg space-y-3">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2.5 rounded-xl bg-[#FF6500]/20 text-[#FF7A1A]">
+                        <ExternalLink className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <h4 className="font-display font-bold text-lg text-white">
+                          GitHub Pages Automatic Deployment
+                        </h4>
+                        <p className="text-xs text-[#858585]">
+                          How updates made in this admin panel automatically deploy to GitHub Pages.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-black/60 border border-white/10 text-xs text-[#BDBDBD] space-y-2">
+                      <div className="flex items-center gap-2 text-emerald-400 font-bold font-mono">
+                        <Check className="w-4 h-4" />
+                        <span>GitHub Actions CI/CD is active on your repository</span>
+                      </div>
+                      <p>
+                        Every time you push or commit changes to your GitHub repository (branch <code className="text-[#FF7A1A]">main</code>), GitHub Actions automatically triggers <code className="text-white">.github/workflows/deploy.yml</code>, compiles the static build, and deploys it directly to your live GitHub Pages URL!
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Actions to Export updated data */}
+                  <div className="p-5 rounded-2xl bg-[#121212] border border-white/10 space-y-4">
+                    <h5 className="font-display font-bold text-sm text-white">
+                      Export Updated Config to GitHub (On Android or Mobile)
+                    </h5>
+
+                    <p className="text-xs text-[#858585]">
+                      When you customize your name animation, profile links, or photos, use either option below to push the update to your GitHub repository:
+                    </p>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {/* Option 1: Download JSON */}
+                      <button
+                        type="button"
+                        onClick={handleDownloadSiteData}
+                        className="p-4 rounded-xl bg-[#181818] border border-white/10 hover:border-[#FF6500] text-left space-y-2 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-display font-bold text-sm text-white group-hover:text-[#FF7A1A]">
+                            1. Download siteData.json
+                          </span>
+                          <Download className="w-4 h-4 text-[#FF7A1A]" />
+                        </div>
+                        <p className="text-xs text-[#858585]">
+                          Downloads your current configuration file to your device so you can upload or commit it to GitHub.
+                        </p>
+                      </button>
+
+                      {/* Option 2: Copy JSON */}
+                      <button
+                        type="button"
+                        onClick={handleCopySiteData}
+                        className="p-4 rounded-xl bg-[#181818] border border-white/10 hover:border-[#FF6500] text-left space-y-2 transition-all cursor-pointer group"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="font-display font-bold text-sm text-white group-hover:text-[#FF7A1A]">
+                            2. {copiedDeployJson ? '✓ Copied to Clipboard!' : 'Copy siteData.json Text'}
+                          </span>
+                          <Copy className="w-4 h-4 text-[#FF7A1A]" />
+                        </div>
+                        <p className="text-xs text-[#858585]">
+                          Copies the complete JSON content in 1 tap so you can easily paste it into GitHub's file editor.
+                        </p>
+                      </button>
+                    </div>
+
+                    {/* Quick Links */}
+                    <div className="p-4 rounded-xl bg-black/40 border border-white/5 space-y-3">
+                      <span className="text-xs font-tech text-[#858585] uppercase block">
+                        Direct Repository Links:
+                      </span>
+                      <div className="flex flex-wrap gap-2">
+                        <a
+                          href="https://github.com/aurarifat/qr-code-id-card/actions"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 rounded-xl bg-[#181818] hover:bg-[#222] border border-white/10 text-xs font-mono text-[#FF7A1A] hover:text-white flex items-center gap-1.5 transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>View GitHub Actions Workflows →</span>
+                        </a>
+
+                        <a
+                          href="https://aurarifat.github.io/qr-code-id-card/"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3.5 py-2 rounded-xl bg-[#181818] hover:bg-[#222] border border-white/10 text-xs font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-1.5 transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Open Live GitHub Pages Site →</span>
+                        </a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}

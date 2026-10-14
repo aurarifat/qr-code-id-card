@@ -410,6 +410,28 @@ app.post('/api/site-data', async (req: Request, res: Response) => {
     }
 
     fs.writeFileSync(SITE_DATA_FILE, JSON.stringify(updated, null, 2), 'utf-8');
+
+    // Also sync to public/data/siteData.json for Vite builds & GitHub Actions
+    try {
+      const publicDataDir = path.join(__dirname, 'public', 'data');
+      if (!fs.existsSync(publicDataDir)) {
+        fs.mkdirSync(publicDataDir, { recursive: true });
+      }
+      fs.writeFileSync(path.join(publicDataDir, 'siteData.json'), JSON.stringify(updated, null, 2), 'utf-8');
+    } catch (publicErr) {
+      console.warn('Could not sync to public/data/siteData.json:', publicErr);
+    }
+
+    // Also sync to dist/data/siteData.json if dist exists
+    try {
+      const distDataDir = path.join(__dirname, 'dist', 'data');
+      if (fs.existsSync(distDataDir)) {
+        fs.writeFileSync(path.join(distDataDir, 'siteData.json'), JSON.stringify(updated, null, 2), 'utf-8');
+      }
+    } catch {
+      // ignore
+    }
+
     return res.json({ success: true, updated });
   } catch (err) {
     console.error('Error writing siteData.json:', err);

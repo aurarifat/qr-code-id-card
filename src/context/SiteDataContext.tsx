@@ -66,6 +66,12 @@ export interface SiteData {
   phone: string;
   whatsappUrl: string;
 
+  // Hero Name Animations
+  heroFirstNameAnimation?: string;
+  heroLastNameAnimation?: string;
+  heroAnimationSpeed?: 'fast' | 'normal' | 'slow';
+  heroWordAnimations?: Record<string, string>;
+
   // School Information
   schoolName: string;
   schoolDescription: string;
@@ -114,6 +120,11 @@ export const defaultSiteData: SiteData = {
   email: 'mahiahmed1418@gmail.com',
   phone: '01595257722',
   whatsappUrl: 'https://wa.me/8801595257722',
+
+  heroFirstNameAnimation: 'solid',
+  heroLastNameAnimation: 'shimmer',
+  heroAnimationSpeed: 'normal',
+  heroWordAnimations: {},
 
   schoolName: 'Lalore High School',
   schoolDescription: 'A well-established secondary educational institution located in Singra Upazila of Natore District under the Rajshahi Division of Bangladesh.',

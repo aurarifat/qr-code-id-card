@@ -4,6 +4,7 @@ import { copyToClipboard } from '../utils/clipboard';
 import { ImageLightboxModal } from './ImageLightboxModal';
 import { useSiteData } from '../context/SiteDataContext';
 import { normalizeImageUrl } from '../utils/imageUrl';
+import { getAnimationClass } from '../utils/animationUtils';
 
 export const Hero: React.FC = () => {
   const { siteData } = useSiteData();
@@ -13,9 +14,11 @@ export const Hero: React.FC = () => {
 
   const freeFireId = siteData.freeFireId || '6111000130';
   const brandName = siteData.brandName || 'Aura RIFAT';
-  const brandWords = brandName.trim().split(/\s+/);
-  const firstWord = brandWords[0] || 'Aura';
-  const restWords = brandWords.slice(1).join(' ');
+  const brandWords = brandName.trim().split(/\s+/).filter(Boolean);
+  const firstNameAnim = siteData.heroFirstNameAnimation || 'solid';
+  const lastNameAnim = siteData.heroLastNameAnimation || 'shimmer';
+  const animSpeed = siteData.heroAnimationSpeed || 'normal';
+  const wordAnims = siteData.heroWordAnimations || {};
 
   const profileImg = normalizeImageUrl(siteData.profilePhotoUrl) || 'https://i.ibb.co/93yZ0YPT/file-00000000a02c8211b7422677595ebb98-1.jpg';
 
@@ -48,11 +51,18 @@ export const Hero: React.FC = () => {
 
             {/* Main Brand Heading */}
             <h1 className="font-display font-extrabold text-4xl sm:text-6xl lg:text-7xl tracking-tight leading-[1.08] text-white dark:text-white light:text-[#121212]">
-              {restWords ? (
-                <>
-                  {firstWord}{' '}
-                  <span className="brand-shimmer">{restWords}</span>
-                </>
+              {brandWords.length > 0 ? (
+                brandWords.map((word, idx) => {
+                  const animKey =
+                    wordAnims[idx] || (idx === 0 ? firstNameAnim : lastNameAnim);
+                  const animClass = getAnimationClass(animKey, animSpeed);
+                  return (
+                    <React.Fragment key={idx}>
+                      <span className={animClass}>{word}</span>
+                      {idx < brandWords.length - 1 && ' '}
+                    </React.Fragment>
+                  );
+                })
               ) : (
                 <span className="brand-shimmer">{brandName}</span>
               )}

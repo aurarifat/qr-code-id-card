@@ -170,6 +170,162 @@ html.light .brand-shimmer {
   animation: floatGentle 5s ease-in-out infinite;
 }
 
+/* Hero Name Animation Presets */
+
+/* 1. Flame Pulse */
+@keyframes flamePulse {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(255, 101, 0, 0.75), 0 0 22px rgba(255, 122, 26, 0.45), 0 0 35px rgba(217, 71, 0, 0.25);
+    color: #FFF7ED;
+  }
+  50% {
+    text-shadow: 0 0 18px rgba(255, 101, 0, 1), 0 0 36px rgba(255, 122, 26, 0.8), 0 0 55px rgba(255, 179, 71, 0.6);
+    color: #FFFFFF;
+  }
+}
+html.light .anim-flame-pulse {
+  animation: flamePulseLight 3s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes flamePulseLight {
+  0%, 100% {
+    text-shadow: 0 0 8px rgba(234, 88, 12, 0.6), 0 0 18px rgba(249, 115, 22, 0.35);
+    color: #C2410C;
+  }
+  50% {
+    text-shadow: 0 0 14px rgba(234, 88, 12, 0.9), 0 0 28px rgba(249, 115, 22, 0.65);
+    color: #9A3412;
+  }
+}
+.anim-flame-pulse {
+  animation: flamePulse 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* 2. Neon Flicker */
+@keyframes neonFlicker {
+  0%, 19.999%, 22%, 62.999%, 64%, 64.999%, 70%, 100% {
+    opacity: 1;
+    text-shadow: 0 0 6px #FF6500, 0 0 14px #FF7A1A, 0 0 28px #FF6500, 0 0 45px #D94700;
+    color: #FFFAEB;
+  }
+  20%, 21.999%, 63%, 63.999%, 65%, 69.999% {
+    opacity: 0.35;
+    text-shadow: none;
+    color: #FFB347;
+  }
+}
+.anim-neon-flicker {
+  animation: neonFlicker 5s infinite;
+  display: inline-block;
+}
+
+/* 3. Cyber Glitch */
+@keyframes cyberGlitch {
+  0%, 88%, 100% {
+    transform: translate(0, 0);
+    text-shadow: none;
+  }
+  90% {
+    transform: translate(-2px, 1px);
+    text-shadow: 2px 0 #FF6500, -2px 0 #00F0FF;
+  }
+  92% {
+    transform: translate(2px, -1px);
+    text-shadow: -2px 0 #FF6500, 2px 0 #00F0FF;
+  }
+  94% {
+    transform: translate(-1px, 2px);
+    text-shadow: 1px 0 #FF6500, -1px 0 #00F0FF;
+  }
+  96% {
+    transform: translate(1px, -1px);
+    text-shadow: -1px 0 #FF6500, 1px 0 #00F0FF;
+  }
+}
+.anim-glitch {
+  animation: cyberGlitch 3.5s infinite;
+  display: inline-block;
+}
+
+/* 4. Wave Bounce */
+@keyframes waveBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+.anim-wave-bounce {
+  animation: waveBounce 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* 5. Gold Radiance */
+.anim-gold-radiance {
+  background: linear-gradient(135deg, #FFE8B6 0%, #FFB347 30%, #FF8C00 70%, #FFF2CC 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: brandSweep 4s linear infinite;
+  display: inline-block;
+  filter: drop-shadow(0 0 14px rgba(255, 179, 71, 0.45));
+}
+html.light .anim-gold-radiance {
+  background: linear-gradient(135deg, #78350F 0%, #D97706 35%, #B45309 70%, #92400E 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: brandSweep 4s linear infinite;
+}
+
+/* 6. Gradient Fire */
+.anim-gradient-fire {
+  background: linear-gradient(90deg, #FF4500 0%, #FF6500 35%, #FFA500 70%, #FF2200 100%);
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: brandSweep 4s ease infinite;
+  display: inline-block;
+}
+
+/* 7. Smoke Float */
+@keyframes smokeFloat {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+    filter: drop-shadow(0 0 6px rgba(255, 101, 0, 0.3));
+  }
+  50% {
+    transform: translateY(-6px) scale(1.02);
+    filter: drop-shadow(0 0 18px rgba(255, 101, 0, 0.7));
+  }
+}
+.anim-smoke-float {
+  animation: smokeFloat 4s ease-in-out infinite;
+  display: inline-block;
+}
+
+/* 8. Solid Clean */
+.anim-solid {
+  display: inline-block;
+  color: inherit;
+}
+
+/* Speed Modifiers */
+.anim-speed-fast {
+  animation-duration: 1.8s !important;
+}
+.anim-speed-normal {
+  animation-duration: 3.5s !important;
+}
+.anim-speed-slow {
+  animation-duration: 6s !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
