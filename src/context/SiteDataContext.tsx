@@ -695,17 +695,26 @@ export const SiteDataProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       reader.readAsDataURL(file);
       const base64Data = await base64Promise;
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ data: base64Data, filename: file.name }),
-      });
+      // Try server upload first if backend is present
+      try {
+        const res = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: base64Data, filename: file.name }),
+        });
 
-      if (res.ok) {
-        const json = await res.json();
-        return { success: true, url: json.url };
+        if (res.ok) {
+          const json = await res.json();
+          if (json.url) {
+            return { success: true, url: json.url };
+          }
+        }
+      } catch {
+        // Backend upload route unavailable (e.g. static GitHub Pages hosting)
       }
-      return { success: false, url: '', error: 'Failed to upload image' };
+
+      // Seamless static fallback: store base64 data URI so user immediately sees their photo
+      return { success: true, url: base64Data };
     } catch (err: any) {
       return { success: false, url: '', error: err?.message || 'Upload error' };
     }

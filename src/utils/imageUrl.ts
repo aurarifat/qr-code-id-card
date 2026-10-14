@@ -50,6 +50,12 @@ export function normalizeImageUrl(url: string | undefined | null): string {
     }
   }
 
+  // If local /uploads path, handle base path for GitHub Pages or preview
+  if (clean.startsWith('/uploads/')) {
+    // Return relative path so it resolves correctly on static subdirectories
+    return `.${clean}`;
+  }
+
   return clean;
 }
 

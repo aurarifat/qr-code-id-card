@@ -30,16 +30,48 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+
+      - name: Inspect and ensure folder structure
+        run: |
+          echo "=== Repository root files ==="
+          ls -la
+
+          # On mobile devices, file uploads sometimes flatten into root directory.
+          # Automatically restore required folder structure if misplaced:
+          mkdir -p src
+          for file in main.tsx App.tsx index.css; do
+            if [ -f "$file" ] && [ ! -f "src/$file" ]; then
+              echo "Moving $file into src/"
+              mv "$file" "src/"
+            fi
+          done
+
+          for dir in components context utils; do
+            if [ -d "$dir" ] && [ ! -d "src/$dir" ]; then
+              echo "Moving $dir directory into src/"
+              mv "$dir" "src/"
+            fi
+          done
+
+          if [ -d "src" ]; then
+            echo "=== Contents of src/ ==="
+            ls -la src
+          fi
 
       - name: Install dependencies
-        run: npm install
+        run: npm install --legacy-peer-deps
 
       - name: Build production site with Vite
-        run: npm run build
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
+        run: |
+          if [ -f "src/main.tsx" ]; then
+            npm run build
+          elif [ -f "dist/index.html" ]; then
+            echo "Using pre-built dist output directory."
+          else
+            echo "::error::Neither src/main.tsx nor dist/index.html was found in this repository."
+            echo "Please make sure your files are uploaded to GitHub."
+            exit 1
+          fi
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
