@@ -1,0 +1,133 @@
+{
+  "brandName": "Aura RIFAT",
+  "creatorName": "Mahi Ahmed Rifat",
+  "heroSubtitle": "Gamer • Content Creator • Designer",
+  "availabilityBadge": "GAMER • CREATOR • DESIGNER",
+  "bio": "Competitive Free Fire player, Class 9 student at Lalore High School, and digital graphic designer from Natore, Bangladesh.",
+  "age": "15+",
+  "academicClass": "Class 9",
+  "location": "Natore Zilla, BD",
+  "email": "mahiahmed1418@gmail.com",
+  "phone": "01595257722",
+  "whatsappUrl": "https://wa.me/8801595257722",
+  "schoolName": "Lalore High School",
+  "schoolDescription": "A well-established secondary educational institution located in Singra Upazila of Natore District under the Rajshahi Division of Bangladesh.",
+  "eiinNumber": "124267",
+  "schoolLocation": "Singra Upazila, Natore District, Rajshahi Division, Bangladesh",
+  "schoolPhotoUrl": "https://i.ibb.co/L2zK7s5/file-0000000059c48211974701cfc407a37a.png",
+  "schoolLogoUrl": "https://iili.io/nVDIIYN.th.jpg",
+  "favoriteSubject": "English",
+  "classRank": "Top 6",
+  "studentHobby": "Tournament Player",
+  "studentInterest": "Reads comics & visual art",
+  "mainGame": "Free Fire",
+  "freeFireId": "6111000130",
+  "presentLevel": "63",
+  "deviceSpecs": "Infinix XPAD 20 (Helio G88, 6/128GB, Android 15)",
+  "tiktokViralViews": "4.2K+",
+  "gamingPhotoUrl": "https://iili.io/K8fPhe1.png",
+  "weaponWoodpeckerUrl": "https://iili.io/K8froWx.jpg",
+  "weaponM590Url": "https://iili.io/K8frxiQ.jpg",
+  "weaponAC80Url": "https://iili.io/K8f6jVf.jpg",
+  "weaponTrogonUrl": "https://iili.io/K8f61SI.jpg",
+  "profilePhotoUrl": "https://i.ibb.co/93yZ0YPT/file-00000000a02c8211b7422677595ebb98-1.jpg",
+  "socialAccounts": [
+    {
+      "id": "social-tiktok",
+      "platform": "tiktok",
+      "title": "TikTok Platform",
+      "username": "@rifat99_aura",
+      "url": "https://www.tiktok.com/@rifat99_aura",
+      "badge": "4.2K+ Viral Views",
+      "description": "Viral gameplay clips, trending sound edits, and Free Fire highlights.",
+      "isActive": true
+    },
+    {
+      "id": "social-instagram",
+      "platform": "instagram",
+      "title": "Instagram Network",
+      "username": "@rifat99_aura",
+      "url": "https://www.instagram.com/rifat99_aura",
+      "badge": "Daily Stories",
+      "description": "Creative design drops, daily stories, and personal lifestyle updates.",
+      "isActive": true
+    },
+    {
+      "id": "social-facebook",
+      "platform": "facebook",
+      "title": "Facebook Community",
+      "username": "@mahi2rifat",
+      "url": "https://www.facebook.com/mahi2rifat?mibextid=rS40aB7S9Ucbxw6v",
+      "badge": "📝",
+      "description": "Student highlights, local events in Natore, and personal connections.",
+      "isActive": true
+    },
+    {
+      "id": "social-whatsapp",
+      "platform": "whatsapp",
+      "title": "WhatsApp Messenger",
+      "username": "+880 1595-257722",
+      "url": "https://wa.me/8801595257722",
+      "badge": "Direct Chat",
+      "description": "Instant response for freelance design projects, squad invites, and inquiries.",
+      "isActive": true
+    },
+    {
+      "id": "social-youtube",
+      "platform": "youtube",
+      "title": "YouTube Channel",
+      "username": "@AuraRIFAT",
+      "url": "https://youtube.com/@AuraRIFAT",
+      "badge": "Full HD Gameplay",
+      "description": "Competitive Free Fire headshot montages, scrim highlights, and tutorials.",
+      "isActive": false
+    },
+    {
+      "id": "social-discord",
+      "platform": "discord",
+      "title": "Discord Squad",
+      "username": "AuraRIFAT#6111",
+      "url": "https://discord.gg",
+      "badge": "Clan Voice Room",
+      "description": "Join our Free Fire tournament squad voice channel and custom room scrims.",
+      "isActive": false
+    }
+  ],
+  "galleryPhotos": [
+    {
+      "url": "https://i.ibb.co/fdwmkryd/file-0000000062a08208861c4f1ace002448-1.jpg",
+      "title": "You",
+      "category": "gaming",
+      "description": "Added via Admin Dashboard live upload.",
+      "id": "photo-1791896178938"
+    },
+    {
+      "id": "photo-1",
+      "title": "Full HD Portrait Showcase",
+      "category": "portraits",
+      "url": "https://i.ibb.co/93yZ0YPT/file-00000000a02c8211b7422677595ebb98-1.jpg",
+      "description": "Official crystal clear portrait of Aura RIFAT."
+    },
+    {
+      "id": "photo-3",
+      "title": "Free Fire In-Game Identity",
+      "category": "gaming",
+      "url": "https://iili.io/K8fPhe1.png",
+      "description": "Competitive Free Fire player loadout card & stats."
+    },
+    {
+      "id": "photo-4",
+      "title": "Lalore High School 16:9 Campus",
+      "category": "campus",
+      "url": "https://i.ibb.co/L2zK7s5/file-0000000059c48211974701cfc407a37a.png",
+      "description": "Full HD educational campus photo in Singra Upazila."
+    },
+    {
+      "id": "photo-5",
+      "title": "Lalore High School Insignia",
+      "category": "campus",
+      "url": "https://iili.io/nVDIIYN.th.jpg",
+      "description": "Official academic institution seal & crest."
+    }
+  ]
+}

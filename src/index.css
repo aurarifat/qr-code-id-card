@@ -1,0 +1,182 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #070707;
+    --bg-secondary: #0D0D0D;
+    --bg-elevated: #151515;
+    --surface-glass: rgba(22, 22, 22, 0.78);
+    --primary-orange: #FF6500;
+    --bright-orange: #FF7A1A;
+    --deep-orange: #D94700;
+    --amber-highlight: #FFB347;
+    --text-primary: #FAFAFA;
+    --text-secondary: #BDBDBD;
+    --text-muted: #858585;
+    --border-glow: rgba(255, 101, 0, 0.22);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+  }
+
+  html.light {
+    --bg-primary: #F8F7F4;
+    --bg-secondary: #EFECE6;
+    --bg-elevated: #FFFFFF;
+    --surface-glass: rgba(255, 255, 255, 0.85);
+    --primary-orange: #EA580C;
+    --bright-orange: #F97316;
+    --deep-orange: #C2410C;
+    --amber-highlight: #D97706;
+    --text-primary: #121212;
+    --text-secondary: #4A4A4A;
+    --text-muted: #737373;
+    --border-glow: rgba(234, 88, 12, 0.25);
+    --border-subtle: rgba(0, 0, 0, 0.09);
+  }
+}
+
+/* Typography Helpers */
+.font-display {
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-editorial {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+.font-tech {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.font-body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #070707;
+}
+html.light ::-webkit-scrollbar-track {
+  background: #F8F7F4;
+}
+::-webkit-scrollbar-thumb {
+  background: #FF6500;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FF7A1A;
+}
+
+/* Glassmorphism surfaces */
+.glass-panel {
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glow);
+}
+
+.glass-panel-subtle {
+  background: var(--surface-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-subtle);
+}
+
+/* Brand sweep effect */
+@keyframes brandSweep {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.brand-shimmer {
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffb347 25%,
+    #ff6500 50%,
+    #ffb347 75%,
+    #ffffff 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: brandSweep 6s linear infinite;
+}
+
+html.light .brand-shimmer {
+  background: linear-gradient(
+    90deg,
+    #121212 0%,
+    #ea580c 35%,
+    #d97706 65%,
+    #121212 100%
+  );
+  background-size: 200% auto;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: brandSweep 6s linear infinite;
+}
+
+/* 3D card flip styles */
+.perspective-1000 {
+  perspective: 1000px;
+}
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+/* Ambient glow pulses */
+@keyframes ambientPulse {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.08);
+  }
+}
+
+.animate-ambient-glow {
+  animation: ambientPulse 8s ease-in-out infinite;
+}
+
+/* Floating animation */
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: floatGentle 5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
